@@ -9,7 +9,8 @@ import { useWindowSize } from "react-use";
 
 function App() {
   const [isSideBarOpen, setIsSideBarOpen] = useState(true);
-  const { width } = useWindowSize();
+  const [componentHeight, setComponentHeight] = useState(0); // State to store the height of the component
+  const { width,height } = useWindowSize();
   useEffect(() => {
     if (width > 639) {
       setIsSideBarOpen(true);
@@ -19,11 +20,11 @@ function App() {
     <Router>
       <NavBar setIsSideBarOpen={setIsSideBarOpen} />
       <div className="flex h-full">
-        {isSideBarOpen && <SideBar isSideBarOpen={isSideBarOpen} />}
+        {isSideBarOpen && <SideBar isSideBarOpen={isSideBarOpen} componentHeight={componentHeight} height={height}/>}
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<DisplayTask />} />
-            <Route path="/create" element={<CreateTask />} />
+            <Route path="/create" element={<CreateTask setHeight={setComponentHeight}/>} />
             <Route path="/edit" element={<EditTask />} />
           </Routes>
         </main>
