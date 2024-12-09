@@ -1,10 +1,14 @@
-import { useEffect, useRef } from "react";
-import {useDispatch} from "react-redux"
+import { useEffect, useRef, useState } from "react";
+import {useDispatch, useSelector} from "react-redux"
 // eslint-disable-next-line react/prop-types
 const CreateTask = ({ setHeight }) => {
   const dispatch = useDispatch()
   const taskFormRef = useRef(null);
-
+  const [id,setId] = useState(1)
+  const tasks = useSelector((state)=>state.tasks)
+  useEffect(()=>{
+    setId(tasks.length+1)
+  },[])
   useEffect(() => {
     const updateHeight = () => {
       if (taskFormRef.current) {
@@ -41,6 +45,7 @@ const CreateTask = ({ setHeight }) => {
     if (taskFormRef.current) {
       const formData = new FormData(taskFormRef.current);
       const data = {
+        id:id,
         name: formData.get("firstname"),
         description: formData.get("description"),
         priority: formData.get("priority"),
@@ -58,6 +63,7 @@ const CreateTask = ({ setHeight }) => {
       }
       dispatch({type:"create",payload:data})
       handleClear()
+      setId(id+1)
     }
   };
 
@@ -106,7 +112,7 @@ const CreateTask = ({ setHeight }) => {
             <input
               type="radio"
               name="priority"
-              value="low"
+              value="Low"
               className="w-4 h-4 accent-slate-900"
             />
             Low
@@ -115,7 +121,7 @@ const CreateTask = ({ setHeight }) => {
             <input
               type="radio"
               name="priority"
-              value="medium"
+              value="Medium"
               className="w-4 h-4 accent-slate-900"
             />
             Medium
@@ -124,7 +130,7 @@ const CreateTask = ({ setHeight }) => {
             <input
               type="radio"
               name="priority"
-              value="high"
+              value="High"
               className="w-4 h-4 accent-slate-900"
             />
             High
@@ -166,27 +172,36 @@ const CreateTask = ({ setHeight }) => {
           htmlFor="task-completed"
           className="block text-sm font-medium text-slate-900 mb-2"
         >
-          Task Completed
+          Task Status
         </label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-slate-900">
             <input
               type="radio"
               name="task-completed"
-              value="Yes"
+              value="Inactive"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked
             />
-            Yes
+            Inactive
           </label>
           <label className="flex items-center gap-2 text-slate-900">
             <input
               type="radio"
               name="task-completed"
-              value="No"
+              value="Active"
               className="w-4 h-4 accent-slate-900"
-              defaultChecked
             />
-            No
+            Active
+          </label>
+          <label className="flex items-center gap-2 text-slate-900">
+            <input
+              type="radio"
+              name="task-completed"
+              value="Completed"
+              className="w-4 h-4 accent-slate-900"
+            />
+            Completed
           </label>
         </div>
 
