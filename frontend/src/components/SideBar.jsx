@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "motion/react";
@@ -32,16 +33,6 @@ const SideBar = ({ isSideBarOpen, componentHeight, height }) => {
             }
           >
             Create Task
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/edit"
-            className={({ isActive }) =>
-              `block px-4 py-2 rounded ${isActive ? "bg-gray-700 text-blue-400" : "hover:bg-gray-700"}`
-            }
-          >
-            Edit Task
           </NavLink>
         </li>
       </ul>

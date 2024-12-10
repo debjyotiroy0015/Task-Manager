@@ -1,15 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import {useDispatch, useSelector} from "react-redux"
-// eslint-disable-next-line react/prop-types
-const CreateTask = ({ setHeight }) => {
-  const dispatch = useDispatch()
-  const taskFormRef = useRef(null);
-  const [id,setId] = useState(1)
-  const tasks = useSelector((state)=>state.tasks)
-  useEffect(()=>{
-    setId(tasks.length+1)
-  },[])
-  useEffect(() => {
+import { useEffect, useState,useRef } from "react";
+import { useSelector,useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+const Task = ({setHeight}) =>{
+    let params = useParams()
+    const navigate = useNavigate();
+    const dispatch = useDispatch()
+    const taskFormRef = useRef(null);
+    useEffect(() => {
     const updateHeight = () => {
       if (taskFormRef.current) {
         setHeight(taskFormRef.current.offsetHeight);
@@ -23,36 +21,26 @@ const CreateTask = ({ setHeight }) => {
       window.removeEventListener("resize", updateHeight);
     };
   }, [setHeight]);
-
-  const handleClear = () => {
-  if (taskFormRef.current) {
-    const inputs = taskFormRef.current.querySelectorAll("input, textarea");
-    inputs.forEach((input) => {
-      if (input.type === "radio") {
-        if (input.name === "task-completed" && input.value === "No") {
-          input.checked = true; // Set "No" as default for task-completed
-        } else {
-          input.checked = false;
+    const [task,setTask] = useState([])
+    const allTasks = useSelector((state)=>state.tasks)
+    useEffect(() => {
+        const foundTask = allTasks.filter((task) =>  task.id.toString() === params.id);
+        if (foundTask) {
+            setTask(foundTask);
         }
-      } else {
-        input.value = ""; // Clear text and textarea fields
-      }
-    });
-  }
-};
-
-  const handleCreate = () => {
+    }, [params.id, allTasks]);
+      const handleSave = () => {
     if (taskFormRef.current) {
       const formData = new FormData(taskFormRef.current);
       const data = {
-        id:id,
+        id:task[0].id,
         name: formData.get("firstname"),
         description: formData.get("description"),
         priority: formData.get("priority"),
         startDate: formData.get("startDate"),
         dueDate: formData.get("dueDate"),
         taskCompleted: formData.get("task-completed"),
-        deleted:"present"
+        deleted:"present",
       };
 
       // Validate mandatory fields
@@ -62,15 +50,14 @@ const CreateTask = ({ setHeight }) => {
           return;
         }
       }
-      dispatch({type:"create",payload:data})
-      handleClear()
-      setId(id+1)
+      dispatch({type:"save",payload:data})
+      navigate("/")
     }
   };
-
-  return (
-    <div className="w-full h-[100vh]">
-      <form
+return(
+    <>
+        {task.length>0?
+      (<form
         ref={taskFormRef}
         className="w-full p-4 rounded-md flex gap-4 flex-col"
       >
@@ -81,6 +68,7 @@ const CreateTask = ({ setHeight }) => {
           Name
         </label>
         <input
+          defaultValue={task[0].name}
           type="text"
           id="fname"
           name="firstname"
@@ -95,6 +83,7 @@ const CreateTask = ({ setHeight }) => {
           Description
         </label>
         <textarea
+          defaultValue={task[0].description}
           id="description"
           name="description"
           rows="4"
@@ -115,6 +104,7 @@ const CreateTask = ({ setHeight }) => {
               name="priority"
               value="Low"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked={task[0].priority==="Low"?true:false}
             />
             Low
           </label>
@@ -124,6 +114,7 @@ const CreateTask = ({ setHeight }) => {
               name="priority"
               value="Medium"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked={task[0].priority==="Medium"?true:false}
             />
             Medium
           </label>
@@ -133,6 +124,7 @@ const CreateTask = ({ setHeight }) => {
               name="priority"
               value="High"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked={task[0].priority==="High"?true:false}
             />
             High
           </label>
@@ -147,6 +139,7 @@ const CreateTask = ({ setHeight }) => {
               Start Date
             </label>
             <input
+              defaultValue={task[0].startDate}
               type="date"
               id="startDate"
               name="startDate"
@@ -161,6 +154,7 @@ const CreateTask = ({ setHeight }) => {
               Due Date
             </label>
             <input
+              defaultValue={task[0].dueDate}
               type="date"
               id="dueDate"
               name="dueDate"
@@ -182,7 +176,7 @@ const CreateTask = ({ setHeight }) => {
               name="task-completed"
               value="Inactive"
               className="w-4 h-4 accent-slate-900"
-              defaultChecked
+              defaultChecked={task[0].taskCompleted==="Inactive"?true:false}
             />
             Inactive
           </label>
@@ -192,6 +186,7 @@ const CreateTask = ({ setHeight }) => {
               name="task-completed"
               value="Active"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked={task[0].taskCompleted==="Active"?true:false}
             />
             Active
           </label>
@@ -201,6 +196,7 @@ const CreateTask = ({ setHeight }) => {
               name="task-completed"
               value="Completed"
               className="w-4 h-4 accent-slate-900"
+              defaultChecked={task[0].taskCompleted==="Completed"?true:false}
             />
             Completed
           </label>
@@ -209,22 +205,23 @@ const CreateTask = ({ setHeight }) => {
         <div className="flex gap-4 mt-4 flex-row-reverse">
           <button
             type="button"
-            onClick={handleCreate}
+            onClick={handleSave}
             className="px-6 py-2 bg-slate-900 text-white font-medium rounded-md hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900"
           >
-            Create
+            Save
           </button>
           <button
             type="button"
-            onClick={handleClear}
+            onClick={()=>navigate("/")}
             className="px-6 py-2 bg-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
-            Clear
+            Close
           </button>
         </div>
-      </form>
-    </div>
-  );
-};
-
-export default CreateTask;
+      </form>):(
+        <div>No Result Found</div>
+      )}
+    </>
+)
+}
+export default Task;
